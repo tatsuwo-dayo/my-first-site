@@ -2,9 +2,403 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>My First Page</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ポモドーロタイマー</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #aaa;
+      margin-bottom: 2rem;
+    }
+
+    .mode-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .mode-tabs button {
+      padding: 0.4rem 1rem;
+      border: none;
+      border-radius: 20px;
+      background: #2a2a4a;
+      color: #aaa;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .mode-tabs button.active {
+      background: #e84545;
+      color: #fff;
+    }
+
+    .timer-ring {
+      position: relative;
+      width: 260px;
+      height: 260px;
+      margin-bottom: 2.5rem;
+    }
+
+    .timer-ring svg {
+      transform: rotate(-90deg);
+    }
+
+    .ring-bg {
+      fill: none;
+      stroke: #2a2a4a;
+      stroke-width: 10;
+    }
+
+    .ring-progress {
+      fill: none;
+      stroke: #e84545;
+      stroke-width: 10;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.5s linear, stroke 0.3s;
+    }
+
+    .timer-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+
+    .timer-display {
+      font-size: 3.5rem;
+      font-weight: 300;
+      letter-spacing: 0.05em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .session-label {
+      font-size: 0.8rem;
+      color: #888;
+      margin-top: 0.3rem;
+    }
+
+    .controls {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .btn {
+      padding: 0.7rem 2rem;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: transform 0.1s, opacity 0.2s;
+    }
+
+    .btn:active {
+      transform: scale(0.96);
+    }
+
+    .btn-start {
+      background: #e84545;
+      color: #fff;
+      min-width: 120px;
+    }
+
+    .btn-reset {
+      background: #2a2a4a;
+      color: #aaa;
+    }
+
+    .btn-reset:hover {
+      color: #fff;
+    }
+
+    .pomodoro-count {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #2a2a4a;
+      transition: background 0.3s;
+    }
+
+    .dot.done {
+      background: #e84545;
+    }
+
+    .settings {
+      margin-top: 2rem;
+      display: flex;
+      gap: 1.5rem;
+      font-size: 0.8rem;
+      color: #666;
+    }
+
+    .settings label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.3rem;
+      cursor: pointer;
+    }
+
+    .settings input {
+      width: 55px;
+      padding: 0.3rem;
+      text-align: center;
+      border: 1px solid #333;
+      border-radius: 6px;
+      background: #2a2a4a;
+      color: #eee;
+      font-size: 0.9rem;
+    }
+
+    .settings input:focus {
+      outline: 2px solid #e84545;
+      border-color: transparent;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .running .timer-display {
+      animation: pulse 2s ease-in-out infinite;
+    }
+  </style>
 </head>
 <body>
-  <p>Hello World!</p>
+
+  <h1>Pomodoro Timer</h1>
+
+  <div class="mode-tabs">
+    <button class="active" data-mode="pomodoro">作業</button>
+    <button data-mode="short">短い休憩</button>
+    <button data-mode="long">長い休憩</button>
+  </div>
+
+  <div class="timer-ring" id="timerRing">
+    <svg width="260" height="260" viewBox="0 0 260 260">
+      <circle class="ring-bg" cx="130" cy="130" r="115"/>
+      <circle class="ring-progress" id="ringProgress" cx="130" cy="130" r="115"/>
+    </svg>
+    <div class="timer-text">
+      <div class="timer-display" id="timerDisplay">25:00</div>
+      <div class="session-label" id="sessionLabel">作業時間</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn btn-reset" id="resetBtn">リセット</button>
+    <button class="btn btn-start" id="startBtn">スタート</button>
+  </div>
+
+  <div class="pomodoro-count" id="pomodoroCount">
+    <div class="dot" id="d1"></div>
+    <div class="dot" id="d2"></div>
+    <div class="dot" id="d3"></div>
+    <div class="dot" id="d4"></div>
+  </div>
+
+  <div class="settings">
+    <label>作業 (分)<input type="number" id="settingPomodoro" value="25" min="1" max="60"></label>
+    <label>短い休憩 (分)<input type="number" id="settingShort" value="5" min="1" max="30"></label>
+    <label>長い休憩 (分)<input type="number" id="settingLong" value="15" min="1" max="60"></label>
+  </div>
+
+  <script>
+    const CIRCUMFERENCE = 2 * Math.PI * 115;
+
+    const modes = {
+      pomodoro: { label: '作業時間', color: '#e84545' },
+      short:    { label: '短い休憩', color: '#2bc0b4' },
+      long:     { label: '長い休憩', color: '#4a90d9' },
+    };
+
+    let currentMode = 'pomodoro';
+    let totalSeconds = 25 * 60;
+    let remaining = totalSeconds;
+    let running = false;
+    let interval = null;
+    let completedPomodoros = 0;
+
+    const display    = document.getElementById('timerDisplay');
+    const label      = document.getElementById('sessionLabel');
+    const startBtn   = document.getElementById('startBtn');
+    const resetBtn   = document.getElementById('resetBtn');
+    const ring       = document.getElementById('ringProgress');
+    const timerRing  = document.getElementById('timerRing');
+    const tabs       = document.querySelectorAll('.mode-tabs button');
+    const dots       = [1,2,3,4].map(i => document.getElementById('d' + i));
+
+    ring.style.strokeDasharray = CIRCUMFERENCE;
+
+    function getDuration(mode) {
+      const vals = {
+        pomodoro: parseInt(document.getElementById('settingPomodoro').value) || 25,
+        short:    parseInt(document.getElementById('settingShort').value)    || 5,
+        long:     parseInt(document.getElementById('settingLong').value)     || 15,
+      };
+      return vals[mode] * 60;
+    }
+
+    function formatTime(s) {
+      const m = Math.floor(s / 60).toString().padStart(2, '0');
+      const sec = (s % 60).toString().padStart(2, '0');
+      return `${m}:${sec}`;
+    }
+
+    function updateRing() {
+      const ratio = remaining / totalSeconds;
+      ring.style.strokeDashoffset = CIRCUMFERENCE * (1 - ratio);
+    }
+
+    function render() {
+      display.textContent = formatTime(remaining);
+      updateRing();
+      updateDots();
+    }
+
+    function updateDots() {
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('done', i < completedPomodoros % 4 || (completedPomodoros > 0 && completedPomodoros % 4 === 0));
+      });
+      // correct: show exactly how many in current cycle
+      const inCycle = completedPomodoros % 4;
+      dots.forEach((dot, i) => dot.classList.toggle('done', i < inCycle));
+    }
+
+    function switchMode(mode) {
+      stopTimer();
+      currentMode = mode;
+      totalSeconds = getDuration(mode);
+      remaining = totalSeconds;
+      const { label: lbl, color } = modes[mode];
+      label.textContent = lbl;
+      ring.style.stroke = color;
+      startBtn.style.background = color;
+      tabs.forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
+      render();
+    }
+
+    function startTimer() {
+      if (running) return;
+      running = true;
+      startBtn.textContent = '一時停止';
+      timerRing.classList.add('running');
+
+      interval = setInterval(() => {
+        if (remaining <= 0) {
+          clearInterval(interval);
+          running = false;
+          timerRing.classList.remove('running');
+          startBtn.textContent = 'スタート';
+          onComplete();
+          return;
+        }
+        remaining--;
+        render();
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      running = false;
+      clearInterval(interval);
+      startBtn.textContent = 'スタート';
+      timerRing.classList.remove('running');
+    }
+
+    function stopTimer() {
+      pauseTimer();
+      remaining = totalSeconds;
+    }
+
+    function onComplete() {
+      notify();
+      if (currentMode === 'pomodoro') {
+        completedPomodoros++;
+        updateDots();
+        const next = completedPomodoros % 4 === 0 ? 'long' : 'short';
+        setTimeout(() => switchMode(next), 500);
+      } else {
+        setTimeout(() => switchMode('pomodoro'), 500);
+      }
+    }
+
+    function notify() {
+      const msgs = {
+        pomodoro: '作業セッション終了！休憩しましょう 🎉',
+        short:    '休憩終了！次のセッションへ ⏱',
+        long:     '長い休憩終了！また頑張りましょう 💪',
+      };
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('ポモドーロタイマー', { body: msgs[currentMode] });
+      }
+      const audio = new AudioContext();
+      [0, 0.15, 0.3].forEach(t => {
+        const osc = audio.createOscillator();
+        const gain = audio.createGain();
+        osc.connect(gain);
+        gain.connect(audio.destination);
+        osc.frequency.value = 880;
+        gain.gain.setValueAtTime(0.3, audio.currentTime + t);
+        gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + t + 0.2);
+        osc.start(audio.currentTime + t);
+        osc.stop(audio.currentTime + t + 0.2);
+      });
+    }
+
+    startBtn.addEventListener('click', () => {
+      if (running) pauseTimer(); else startTimer();
+    });
+
+    resetBtn.addEventListener('click', () => {
+      stopTimer();
+      render();
+    });
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => switchMode(tab.dataset.mode));
+    });
+
+    ['settingPomodoro', 'settingShort', 'settingLong'].forEach(id => {
+      document.getElementById(id).addEventListener('change', () => {
+        if (!running) switchMode(currentMode);
+      });
+    });
+
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+
+    ring.style.stroke = modes[currentMode].color;
+    render();
+  </script>
 </body>
 </html>
