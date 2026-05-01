@@ -13,8 +13,8 @@
 
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: #1a1a2e;
-      color: #eee;
+      background: linear-gradient(135deg, #fde8f0 0%, #e8f0fd 50%, #e8fdf0 100%);
+      color: #5a4a6a;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -26,7 +26,7 @@
       font-size: 1.4rem;
       letter-spacing: 0.2em;
       text-transform: uppercase;
-      color: #aaa;
+      color: #b8a0c8;
       margin-bottom: 2rem;
     }
 
@@ -40,15 +40,16 @@
       padding: 0.4rem 1rem;
       border: none;
       border-radius: 20px;
-      background: #2a2a4a;
-      color: #aaa;
+      background: #fff;
+      color: #b8a0c8;
       cursor: pointer;
       font-size: 0.85rem;
       transition: background 0.2s, color 0.2s;
+      box-shadow: 0 2px 8px rgba(180,160,200,0.15);
     }
 
     .mode-tabs button.active {
-      background: #e84545;
+      background: #f0a0b8;
       color: #fff;
     }
 
@@ -65,13 +66,13 @@
 
     .ring-bg {
       fill: none;
-      stroke: #2a2a4a;
+      stroke: #f0e0f8;
       stroke-width: 10;
     }
 
     .ring-progress {
       fill: none;
-      stroke: #e84545;
+      stroke: #f0a0b8;
       stroke-width: 10;
       stroke-linecap: round;
       transition: stroke-dashoffset 0.5s linear, stroke 0.3s;
@@ -90,11 +91,12 @@
       font-weight: 300;
       letter-spacing: 0.05em;
       font-variant-numeric: tabular-nums;
+      color: #7a5a8a;
     }
 
     .session-label {
       font-size: 0.8rem;
-      color: #888;
+      color: #c0a8d0;
       margin-top: 0.3rem;
     }
 
@@ -119,18 +121,20 @@
     }
 
     .btn-start {
-      background: #e84545;
+      background: #f0a0b8;
       color: #fff;
       min-width: 120px;
+      box-shadow: 0 4px 14px rgba(240,160,184,0.4);
     }
 
     .btn-reset {
-      background: #2a2a4a;
-      color: #aaa;
+      background: #fff;
+      color: #c0a8d0;
+      box-shadow: 0 2px 8px rgba(180,160,200,0.2);
     }
 
     .btn-reset:hover {
-      color: #fff;
+      color: #9a80b0;
     }
 
     .pomodoro-count {
@@ -143,12 +147,12 @@
       width: 10px;
       height: 10px;
       border-radius: 50%;
-      background: #2a2a4a;
+      background: #e8d8f0;
       transition: background 0.3s;
     }
 
     .dot.done {
-      background: #e84545;
+      background: #f0a0b8;
     }
 
     .settings {
@@ -156,7 +160,7 @@
       display: flex;
       gap: 1.5rem;
       font-size: 0.8rem;
-      color: #666;
+      color: #c0a8d0;
     }
 
     .settings label {
@@ -171,15 +175,15 @@
       width: 55px;
       padding: 0.3rem;
       text-align: center;
-      border: 1px solid #333;
+      border: 1px solid #e8d8f0;
       border-radius: 6px;
-      background: #2a2a4a;
-      color: #eee;
+      background: #fff;
+      color: #7a5a8a;
       font-size: 0.9rem;
     }
 
     .settings input:focus {
-      outline: 2px solid #e84545;
+      outline: 2px solid #f0a0b8;
       border-color: transparent;
     }
 
@@ -197,7 +201,7 @@
       width: 100%;
       height: 6px;
       border-radius: 3px;
-      background: #2a2a4a;
+      background: #f0e0f8;
       outline: none;
       cursor: pointer;
     }
@@ -207,7 +211,7 @@
       width: 18px;
       height: 18px;
       border-radius: 50%;
-      background: #e84545;
+      background: #f0a0b8;
       cursor: grab;
       transition: transform 0.1s;
     }
@@ -219,7 +223,7 @@
 
     .slider-label {
       font-size: 0.75rem;
-      color: #666;
+      color: #c0a8d0;
     }
 
     @keyframes pulse {
@@ -280,9 +284,9 @@
     const CIRCUMFERENCE = 2 * Math.PI * 115;
 
     const modes = {
-      pomodoro: { label: '作業時間', color: '#e84545' },
-      short:    { label: '短い休憩', color: '#2bc0b4' },
-      long:     { label: '長い休憩', color: '#4a90d9' },
+      pomodoro: { label: '作業時間', color: '#f0a0b8' },
+      short:    { label: '短い休憩', color: '#a0d4b8' },
+      long:     { label: '長い休憩', color: '#a0b8f0' },
     };
 
     let currentMode = 'pomodoro';
